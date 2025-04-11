@@ -5,52 +5,68 @@ An AI-powered automated blog content generator and management system built with 
 ## Tech Stack
 
 ### Frontend
-- React (for a scalable and component-based UI)
-- TypeScript
+- React with TypeScript
 - Tailwind CSS
 - Vite
+- Firebase Authentication
 
 ### Backend
-- Python
-- FastAPI (modern, high-performance Python framework)
-- Gemini API (AI content generation)
+- Python 3.9+
+- FastAPI
+- Firebase Admin SDK
+- Google Gemini API
 
 ### Database & Storage
-- Firebase Firestore (NoSQL database)
-- Firebase Storage (media storage)
+- Firebase Firestore
+- Firebase Storage
 
-### Hosting
-- Frontend: Vercel/Netlify
-- Backend: Google Cloud Functions/Vercel Functions
+## Getting Started
+
+### Prerequisites
+1. Node.js >= 16.x
+2. Python >= 3.9
+3. Firebase account and project setup
+4. Gemini API key
+
+### Environment Setup
+1. Clone the repository
+2. Copy `.env.example` to `.env` and fill in your credentials
+3. Install dependencies:
+   ```bash
+   # Frontend
+   cd frontend
+   npm install
+
+   # Backend
+   cd ../backend
+   python -m venv venv
+   # On Windows
+   .\venv\Scripts\activate
+   # On Unix/MacOS
+   source venv/bin/activate
+   pip install -r requirements.txt
+   ```
+
+### Running the Application
+1. Start the backend:
+   ```bash
+   cd backend
+   uvicorn main:app --reload
+   ```
+
+2. Start the frontend:
+   ```bash
+   cd frontend
+   npm run dev
+   ```
 
 ## Features
-
 - AI-powered content generation
 - Post scheduling and management
 - Category and tag management
 - SEO optimization
 - Analytics dashboard
-- User authentication and authorization
-
-## Documentation
-
-Detailed documentation can be found in the [docs](./docs) directory:
-
-- [Product Requirements](./docs/prd/README.md)
-- [System Design](./docs/system-design/README.md)
-- [API Documentation](./docs/api/README.md)
-- [Development Guide](./docs/development/phases.md)
-
-## Getting Started
-
-### Prerequisites
-- Node.js >= 16.x
-- Python >= 3.9
-- Firebase account
-- Gemini API key
-
-### Installation
-Detailed setup instructions coming soon.
+- User authentication
 
 ## Contributing
 Contributions are welcome! Please feel free to submit a Pull Request.

@@ -3,6 +3,7 @@ import { MantineProvider } from '@mantine/core';
 import { LoginForm } from './components/auth/LoginForm';
 import { RegisterForm } from './components/auth/RegisterForm';
 import { Dashboard } from './pages/Dashboard';
+import { CreateBlog } from './pages/CreateBlog';
 import { AppShell } from './components/layout/AppShell';
 import { useAuthStore } from './store/auth';
 
@@ -34,7 +35,7 @@ function App() {
                         path="/create-blog"
                         element={
                             <PrivateRoute>
-                                <div>Create Blog (Coming Soon)</div>
+                                <CreateBlog />
                             </PrivateRoute>
                         }
                     />

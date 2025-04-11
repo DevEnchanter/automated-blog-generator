@@ -1,5 +1,6 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from typing import Dict
 
 app = FastAPI(
     title="Automated Blog Generator API",
@@ -17,5 +18,12 @@ app.add_middleware(
 )
 
 @app.get("/")
-async def root():
-    return {"message": "Welcome to the Automated Blog Generator API"} 
+async def root() -> Dict[str, str]:
+    try:
+        return {"message": "Welcome to the Automated Blog Generator API"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/health")
+async def health_check() -> Dict[str, str]:
+    return {"status": "healthy"} 

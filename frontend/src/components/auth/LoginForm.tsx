@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { TextInput, PasswordInput, Button, Paper, Title, Text, Container } from '@mantine/core';
+import { useNavigate, Link } from 'react-router-dom';
+import { TextInput, PasswordInput, Button, Paper, Title, Text, Container, Group } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { useAuthStore } from '../../store/auth';
 import type { LoginCredentials } from '../../types/auth';
@@ -64,6 +64,12 @@ export function LoginForm() {
                         Sign in
                     </Button>
                 </form>
+                <Text ta="center" mt="md">
+                    Don't have an account?{' '}
+                    <Text component={Link} to="/register" c="blue" style={{ textDecoration: 'none' }}>
+                        Register here
+                    </Text>
+                </Text>
             </Paper>
         </Container>
     );

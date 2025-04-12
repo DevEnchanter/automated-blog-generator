@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { TextInput, PasswordInput, Button, Paper, Title, Text, Container } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { useAuthStore } from '../../store/auth';
@@ -94,6 +94,12 @@ export function RegisterForm() {
                         Register
                     </Button>
                 </form>
+                <Text ta="center" mt="md">
+                    Already have an account?{' '}
+                    <Text component={Link} to="/login" c="blue" style={{ textDecoration: 'none' }}>
+                        Sign in here
+                    </Text>
+                </Text>
             </Paper>
         </Container>
     );

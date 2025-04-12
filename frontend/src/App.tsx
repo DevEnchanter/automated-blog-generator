@@ -3,6 +3,8 @@ import { MantineProvider } from '@mantine/core';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { LoginForm } from './components/auth/LoginForm';
 import { RegisterForm } from './components/auth/RegisterForm';
+import { ForgotPassword } from './components/auth/ForgotPassword';
+import { ResetPassword } from './components/auth/ResetPassword';
 import { Dashboard } from './pages/Dashboard';
 import { CreateBlog } from './pages/CreateBlog';
 import { MyBlogs } from './pages/MyBlogs';
@@ -28,6 +30,8 @@ function App() {
                     <Routes>
                         <Route path="/login" element={<LoginForm />} />
                         <Route path="/register" element={<RegisterForm />} />
+                        <Route path="/forgot-password" element={<ForgotPassword />} />
+                        <Route path="/reset-password" element={<ResetPassword />} />
                         <Route
                             path="/dashboard"
                             element={

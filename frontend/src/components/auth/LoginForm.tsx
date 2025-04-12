@@ -12,11 +12,15 @@ export function LoginForm() {
 
     const form = useForm<LoginCredentials>({
         initialValues: {
-            username: '',
+            email: '',
             password: '',
         },
         validate: {
-            username: (value) => (!value ? 'Username is required' : null),
+            email: (value) => {
+                if (!value) return 'Email is required';
+                if (!/^\S+@\S+$/.test(value)) return 'Invalid email';
+                return null;
+            },
             password: (value) => (!value ? 'Password is required' : null),
         },
     });
@@ -27,7 +31,7 @@ export function LoginForm() {
             await login(values);
             navigate('/dashboard');
         } catch (err) {
-            setError('Invalid username or password');
+            setError('Invalid email or password');
         }
     };
 
@@ -43,10 +47,10 @@ export function LoginForm() {
             <Paper withBorder shadow="md" p={30} mt={30} radius="md">
                 <form onSubmit={form.onSubmit(handleSubmit)}>
                     <TextInput
-                        label="Username"
-                        placeholder="Your username"
+                        label="Email"
+                        placeholder="your@email.com"
                         required
-                        {...form.getInputProps('username')}
+                        {...form.getInputProps('email')}
                     />
                     <PasswordInput
                         label="Password"
@@ -55,6 +59,11 @@ export function LoginForm() {
                         mt="md"
                         {...form.getInputProps('password')}
                     />
+                    <Group justify="flex-end" mt="md">
+                        <Text component={Link} to="/forgot-password" size="sm" c="blue" style={{ textDecoration: 'none' }}>
+                            Forgot password?
+                        </Text>
+                    </Group>
                     {error && (
                         <Text c="red" size="sm" mt="sm">
                             {error}

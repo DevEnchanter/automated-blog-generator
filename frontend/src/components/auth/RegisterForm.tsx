@@ -12,13 +12,11 @@ export function RegisterForm() {
 
     const form = useForm<RegisterCredentials>({
         initialValues: {
-            username: '',
             email: '',
             password: '',
             confirmPassword: '',
         },
         validate: {
-            username: (value) => (!value ? 'Username is required' : null),
             email: (value) => {
                 if (!value) return 'Email is required';
                 if (!/^\S+@\S+$/.test(value)) return 'Invalid email';
@@ -59,16 +57,9 @@ export function RegisterForm() {
             <Paper withBorder shadow="md" p={30} mt={30} radius="md">
                 <form onSubmit={form.onSubmit(handleSubmit)}>
                     <TextInput
-                        label="Username"
-                        placeholder="Your username"
-                        required
-                        {...form.getInputProps('username')}
-                    />
-                    <TextInput
                         label="Email"
                         placeholder="your@email.com"
                         required
-                        mt="md"
                         {...form.getInputProps('email')}
                     />
                     <PasswordInput

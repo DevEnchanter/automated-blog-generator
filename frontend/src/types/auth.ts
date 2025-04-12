@@ -1,17 +1,26 @@
 export interface User {
-    username: string;
     email: string;
     disabled?: boolean;
 }
 
 export interface LoginCredentials {
-    username: string;
+    email: string;
     password: string;
 }
 
-export interface RegisterCredentials extends LoginCredentials {
+export interface RegisterCredentials {
     email: string;
+    password: string;
     confirmPassword: string;
+}
+
+export interface PasswordResetRequest {
+    email: string;
+}
+
+export interface PasswordReset {
+    token: string;
+    new_password: string;
 }
 
 export interface AuthResponse {
@@ -26,4 +35,6 @@ export interface AuthState {
     login: (credentials: LoginCredentials) => Promise<void>;
     register: (credentials: RegisterCredentials) => Promise<void>;
     logout: () => void;
+    requestPasswordReset: (email: string) => Promise<{ message: string; token?: string }>;
+    resetPassword: (token: string, newPassword: string) => Promise<{ message: string }>;
 } 

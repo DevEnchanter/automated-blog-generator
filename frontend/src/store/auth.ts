@@ -30,7 +30,7 @@ export const useAuthStore = create<AuthState>((set) => ({
         try {
             await authService.register(credentials);
             await useAuthStore.getState().login({
-                username: credentials.username,
+                email: credentials.email,
                 password: credentials.password
             });
         } catch (error) {
@@ -46,5 +46,25 @@ export const useAuthStore = create<AuthState>((set) => ({
             token: null, 
             isAuthenticated: false 
         });
+    },
+
+    requestPasswordReset: async (email: string) => {
+        try {
+            const response = await authService.requestPasswordReset(email);
+            return response;
+        } catch (error) {
+            console.error('Password reset request failed:', error);
+            throw error;
+        }
+    },
+
+    resetPassword: async (token: string, newPassword: string) => {
+        try {
+            const response = await authService.resetPassword(token, newPassword);
+            return response;
+        } catch (error) {
+            console.error('Password reset failed:', error);
+            throw error;
+        }
     }
 })); 

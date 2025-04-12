@@ -5,7 +5,12 @@ const API_URL = 'http://localhost:8000';
 
 export const authService = {
     async login(credentials: LoginCredentials): Promise<AuthResponse> {
-        const response = await axios.post(`${API_URL}/token`, credentials, {
+        // FastAPI OAuth2 form expects 'username' field, but we use it for email
+        const formData = new URLSearchParams();
+        formData.append('username', credentials.email);  // Using email as username
+        formData.append('password', credentials.password);
+
+        const response = await axios.post(`${API_URL}/token`, formData, {
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded'
             }
@@ -22,6 +27,19 @@ export const authService = {
             headers: {
                 Authorization: `Bearer ${token}`
             }
+        });
+        return response.data;
+    },
+
+    async requestPasswordReset(email: string): Promise<{ message: string; token?: string }> {
+        const response = await axios.post(`${API_URL}/forgot-password`, { email });
+        return response.data;
+    },
+
+    async resetPassword(token: string, new_password: string): Promise<{ message: string }> {
+        const response = await axios.post(`${API_URL}/reset-password`, {
+            token,
+            new_password
         });
         return response.data;
     }

@@ -1,84 +1,97 @@
 import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { TextInput, PasswordInput, Button, Paper, Title, Text, Container, Group } from '@mantine/core';
+import { TextInput, PasswordInput, Button, Group, Stack, Text, Anchor, Container, Paper } from '@mantine/core';
 import { useForm } from '@mantine/form';
+import { notifications } from '@mantine/notifications';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuthStore } from '../../store/auth';
-import type { LoginCredentials } from '../../types/auth';
+
+interface LoginFormValues {
+    email: string;
+    password: string;
+}
 
 export function LoginForm() {
+    const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const navigate = useNavigate();
-    const login = useAuthStore(state => state.login);
+    const login = useAuthStore((state) => state.login);
 
-    const form = useForm<LoginCredentials>({
+    const form = useForm<LoginFormValues>({
         initialValues: {
             email: '',
             password: '',
         },
         validate: {
-            email: (value) => {
-                if (!value) return 'Email is required';
-                if (!/^\S+@\S+$/.test(value)) return 'Invalid email';
-                return null;
-            },
+            email: (value) => (!value ? 'Email is required' : null),
             password: (value) => (!value ? 'Password is required' : null),
         },
     });
 
-    const handleSubmit = async (values: LoginCredentials) => {
+    const handleSubmit = async (values: LoginFormValues) => {
         try {
+            setLoading(true);
             setError('');
-            await login(values);
-            navigate('/dashboard');
-        } catch (err) {
-            setError('Invalid email or password');
+            await login(values.email, values.password);
+            notifications.show({
+                title: 'Success',
+                message: 'Logged in successfully',
+                color: 'green',
+            });
+            navigate('/create-blog');
+        } catch (error: any) {
+            console.error('Login error:', error);
+            setError(error?.response?.data?.detail || 'Failed to log in. Please check your credentials.');
+            notifications.show({
+                title: 'Error',
+                message: error?.response?.data?.detail || 'Failed to log in. Please check your credentials.',
+                color: 'red',
+            });
+        } finally {
+            setLoading(false);
         }
     };
 
     return (
-        <Container size={420} my={40}>
-            <Title ta="center">
-                Welcome back!
-            </Title>
-            <Text c="dimmed" size="sm" ta="center" mt={5}>
-                Enter your credentials to continue
-            </Text>
-
-            <Paper withBorder shadow="md" p={30} mt={30} radius="md">
+        <Container size="sm">
+            <Paper shadow="md" p="xl" mt="xl">
                 <form onSubmit={form.onSubmit(handleSubmit)}>
-                    <TextInput
-                        label="Email"
-                        placeholder="your@email.com"
-                        required
-                        {...form.getInputProps('email')}
-                    />
-                    <PasswordInput
-                        label="Password"
-                        placeholder="Your password"
-                        required
-                        mt="md"
-                        {...form.getInputProps('password')}
-                    />
-                    <Group justify="flex-end" mt="md">
-                        <Text component={Link} to="/forgot-password" size="sm" c="blue" style={{ textDecoration: 'none' }}>
-                            Forgot password?
-                        </Text>
-                    </Group>
-                    {error && (
-                        <Text c="red" size="sm" mt="sm">
-                            {error}
-                        </Text>
-                    )}
-                    <Button fullWidth mt="xl" type="submit">
-                        Sign in
-                    </Button>
+                    <Stack gap="md">
+                        <Text size="xl" fw={500}>Welcome back</Text>
+                        
+                        {error && (
+                            <Text c="red" size="sm">
+                                {error}
+                            </Text>
+                        )}
+                        
+                        <TextInput
+                            required
+                            label="Email"
+                            placeholder="your@email.com"
+                            {...form.getInputProps('email')}
+                        />
+
+                        <PasswordInput
+                            required
+                            label="Password"
+                            placeholder="Your password"
+                            {...form.getInputProps('password')}
+                        />
+
+                        <Group justify="space-between" align="center">
+                            <Anchor component={Link} to="/forgot-password" size="sm">
+                                Forgot password?
+                            </Anchor>
+                            <Anchor component={Link} to="/register" size="sm">
+                                Don't have an account? Register
+                            </Anchor>
+                        </Group>
+
+                        <Button type="submit" loading={loading}>
+                            Sign in
+                        </Button>
+                    </Stack>
                 </form>
-                <Text ta="center" mt="md">
-                    Don't have an account?{' '}
-                    <Text component={Link} to="/register" c="blue" style={{ textDecoration: 'none' }}>
-                        Register here
-                    </Text>
-                </Text>
             </Paper>
         </Container>
     );

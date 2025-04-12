@@ -1,76 +1,43 @@
-import { Card, SimpleGrid, Text, Button, Group, Title, Paper } from '@mantine/core';
+import { Container, Title, Text, Group, Button, Paper, SimpleGrid } from '@mantine/core';
 import { useNavigate } from 'react-router-dom';
 
 export function Dashboard() {
     const navigate = useNavigate();
 
-    // Mock data (will be replaced with real data later)
-    const stats = [
-        { title: 'Total Blogs', value: '12' },
-        { title: 'Published', value: '8' },
-        { title: 'Drafts', value: '4' },
-        { title: 'Total Views', value: '1.2K' },
-    ];
-
-    const recentBlogs = [
-        { id: 1, title: 'Getting Started with React', status: 'published', views: 245 },
-        { id: 2, title: 'TypeScript Best Practices', status: 'draft', views: 0 },
-        { id: 3, title: 'Building Modern UIs', status: 'published', views: 189 },
-    ];
-
     return (
-        <div>
-            <Group justify="space-between" mb="xl">
-                <Title order={2}>Dashboard</Title>
-                <Button onClick={() => navigate('/create-blog')}>
-                    Create New Blog
-                </Button>
-            </Group>
-
-            <SimpleGrid cols={{ base: 1, sm: 2, md: 4 }} spacing="lg" mb="xl">
-                {stats.map((stat) => (
-                    <Card key={stat.title} withBorder padding="lg">
-                        <Text size="lg" fw={500} tt="uppercase" c="dimmed">
-                            {stat.title}
-                        </Text>
-                        <Title order={3} mt="sm">
-                            {stat.value}
-                        </Title>
-                    </Card>
-                ))}
+        <Container size="lg" py="xl">
+            <Title order={2} mb="xl">Welcome to Your Dashboard</Title>
+            
+            <SimpleGrid cols={2} spacing="md" mb="xl">
+                <Paper shadow="sm" p="xl" radius="md">
+                    <Title order={3} mb="md">Quick Actions</Title>
+                    <Group>
+                        <Button onClick={() => navigate('/create-blog')}>Create New Blog</Button>
+                        <Button variant="light" onClick={() => navigate('/my-blogs')}>View My Blogs</Button>
+                    </Group>
+                </Paper>
+                
+                <Paper shadow="sm" p="xl" radius="md">
+                    <Title order={3} mb="md">Recent Activity</Title>
+                    <Text c="dimmed">No recent activity to show.</Text>
+                </Paper>
             </SimpleGrid>
-
-            <Paper withBorder radius="md" p="md">
-                <Title order={3} mb="md">Recent Blogs</Title>
-                {recentBlogs.map((blog) => (
-                    <Card 
-                        key={blog.id} 
-                        withBorder 
-                        padding="md" 
-                        mb="sm"
-                        style={{ cursor: 'pointer' }}
-                        onClick={() => navigate(`/blog/${blog.id}`)}
-                    >
-                        <Group justify="space-between">
-                            <div>
-                                <Text fw={500}>{blog.title}</Text>
-                                <Text size="sm" c="dimmed" tt="uppercase">
-                                    {blog.status}
-                                </Text>
-                            </div>
-                            <Text size="sm">{blog.views} views</Text>
-                        </Group>
-                    </Card>
-                ))}
-                <Button 
-                    variant="subtle" 
-                    fullWidth 
-                    mt="md"
-                    onClick={() => navigate('/my-blogs')}
-                >
-                    View All Blogs
-                </Button>
-            </Paper>
-        </div>
+            
+            <SimpleGrid cols={2} spacing="md">
+                <Paper shadow="sm" p="xl" radius="md">
+                    <Title order={3} mb="md">Statistics</Title>
+                    <Text>Total Blogs: 0</Text>
+                    <Text>Published Blogs: 0</Text>
+                    <Text>Draft Blogs: 0</Text>
+                </Paper>
+                
+                <Paper shadow="sm" p="xl" radius="md">
+                    <Title order={3} mb="md">Tips</Title>
+                    <Text>• Use AI to generate blog content</Text>
+                    <Text>• Edit and review before publishing</Text>
+                    <Text>• Regular posting keeps readers engaged</Text>
+                </Paper>
+            </SimpleGrid>
+        </Container>
     );
 } 

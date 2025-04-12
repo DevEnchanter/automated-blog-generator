@@ -12,6 +12,7 @@ import secrets
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+from ai_service import AIService, BlogGenerationParams
 
 # Load environment variables
 load_dotenv()
@@ -56,13 +57,6 @@ class User(BaseModel):
 
 class UserInDB(User):
     hashed_password: str
-
-class BlogGenerationParams(BaseModel):
-    title: str
-    topic: str
-    keywords: str
-    tone: str
-    length: str
 
 class PasswordResetRequest(BaseModel):
     email: str
@@ -158,6 +152,8 @@ def send_reset_email(to_email: str, reset_token: str):
         # For development, still print the token if email fails
         print(f"Development mode: Reset token for {to_email}: {reset_token}")
 
+app.ai_service = AIService(api_key=os.getenv("GOOGLE_API_KEY"))
+
 @app.get("/")
 async def root() -> Dict[str, str]:
     try:
@@ -169,22 +165,11 @@ async def root() -> Dict[str, str]:
 async def health_check() -> Dict[str, str]:
     return {"status": "healthy"}
 
-@app.post("/blog/generate")
-async def generate_blog(params: BlogGenerationParams, current_user = Depends(get_current_user)) -> Dict[str, str]:
+@app.post("/api/blogs/generate")
+async def generate_blog(params: BlogGenerationParams, current_user: User = Depends(get_current_user)):
     try:
-        # TODO: Implement AI blog generation logic
-        # For now, return a mock response
-        mock_content = f"""
-        Title: {params.title}
-        
-        This is a mock blog post about {params.topic}.
-        Keywords: {params.keywords}
-        Tone: {params.tone}
-        Length: {params.length}
-        
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-        """
-        return {"content": mock_content}
+        blog_content = await app.ai_service.generate_blog(params)
+        return {"content": blog_content}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

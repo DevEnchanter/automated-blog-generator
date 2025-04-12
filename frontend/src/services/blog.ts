@@ -1,14 +1,15 @@
-import axios from 'axios';
-import { useAuthStore } from '../store/auth';
-
-const API_URL = 'http://localhost:8000';
+import { api } from './api';
 
 export interface BlogGenerationParams {
-    title: string;
     topic: string;
-    keywords: string;
     tone: string;
     length: string;
+    target_audience: string;
+    keywords: string[];
+}
+
+export interface BlogGenerationResponse {
+    content: string;
 }
 
 export interface BlogPost {
@@ -22,63 +23,33 @@ export interface BlogPost {
     updated_at: string;
 }
 
-export const blogService = {
-    async generateContent(params: BlogGenerationParams): Promise<string> {
-        const token = useAuthStore.getState().token;
-        const response = await axios.post(`${API_URL}/blog/generate`, params, {
-            headers: {
-                Authorization: `Bearer ${token}`
-            }
-        });
-        return response.data.content;
-    },
+export const generateBlog = async (params: BlogGenerationParams): Promise<BlogGenerationResponse> => {
+    const response = await api.post<BlogGenerationResponse>('/api/blogs/generate', params);
+    return response.data;
+};
 
+export const blogService = {
     async createBlog(blog: Partial<BlogPost>): Promise<BlogPost> {
-        const token = useAuthStore.getState().token;
-        const response = await axios.post(`${API_URL}/blog`, blog, {
-            headers: {
-                Authorization: `Bearer ${token}`
-            }
-        });
+        const response = await api.post<BlogPost>('/blog', blog);
         return response.data;
     },
 
     async getBlog(id: string): Promise<BlogPost> {
-        const token = useAuthStore.getState().token;
-        const response = await axios.get(`${API_URL}/blog/${id}`, {
-            headers: {
-                Authorization: `Bearer ${token}`
-            }
-        });
+        const response = await api.get<BlogPost>(`/blog/${id}`);
         return response.data;
     },
 
     async getMyBlogs(): Promise<BlogPost[]> {
-        const token = useAuthStore.getState().token;
-        const response = await axios.get(`${API_URL}/blogs`, {
-            headers: {
-                Authorization: `Bearer ${token}`
-            }
-        });
+        const response = await api.get<BlogPost[]>('/blogs');
         return response.data;
     },
 
     async updateBlog(id: string, updates: Partial<BlogPost>): Promise<BlogPost> {
-        const token = useAuthStore.getState().token;
-        const response = await axios.put(`${API_URL}/blog/${id}`, updates, {
-            headers: {
-                Authorization: `Bearer ${token}`
-            }
-        });
+        const response = await api.put<BlogPost>(`/blog/${id}`, updates);
         return response.data;
     },
 
     async deleteBlog(id: string): Promise<void> {
-        const token = useAuthStore.getState().token;
-        await axios.delete(`${API_URL}/blog/${id}`, {
-            headers: {
-                Authorization: `Bearer ${token}`
-            }
-        });
+        await api.delete(`/blog/${id}`);
     }
 }; 

@@ -1,88 +1,78 @@
-import { AppShell as MantineAppShell, UnstyledButton, Group, Text } from '@mantine/core';
-import { Link, useNavigate } from 'react-router-dom';
+import { AppShell as MantineAppShell, Button, Group, Title } from '@mantine/core';
+import { useNavigate, Outlet, Navigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../../store/auth';
-import { IconDashboard, IconPencilPlus, IconArticle, IconSettings, IconLogout } from '@tabler/icons-react';
 
-export function AppShell({ children }: { children: React.ReactNode }) {
+const PUBLIC_ROUTES = ['/login', '/register', '/forgot-password', '/reset-password'];
+
+export function AppShell() {
     const navigate = useNavigate();
-    const logout = useAuthStore(state => state.logout);
+    const location = useLocation();
+    const { isAuthenticated, logout } = useAuthStore();
 
     const handleLogout = () => {
         logout();
         navigate('/login');
     };
 
+    // Redirect to login if not authenticated and trying to access a protected route
+    if (!isAuthenticated && !PUBLIC_ROUTES.includes(location.pathname)) {
+        return <Navigate to="/login" replace />;
+    }
+
+    // Redirect to dashboard if authenticated and trying to access a public route
+    if (isAuthenticated && PUBLIC_ROUTES.includes(location.pathname)) {
+        return <Navigate to="/create-blog" replace />;
+    }
+
     return (
         <MantineAppShell
-            padding="md"
-            navbar={{ width: 300, breakpoint: 'sm' }}
             header={{ height: 60 }}
+            padding="md"
         >
-            <MantineAppShell.Header p="xs">
-                <Group justify="space-between">
-                    <Text size="xl" fw={700}>Blog Generator</Text>
+            <MantineAppShell.Header>
+                <Group h="100%" px="md" justify="space-between">
+                    <Group>
+                        <Title order={3} style={{ cursor: 'pointer' }} onClick={() => navigate('/')}>
+                            Blog Generator
+                        </Title>
+                        {isAuthenticated && (
+                            <>
+                                <Button variant="subtle" onClick={() => navigate('/dashboard')}>
+                                    Dashboard
+                                </Button>
+                                <Button variant="subtle" onClick={() => navigate('/create-blog')}>
+                                    Create Blog
+                                </Button>
+                                <Button variant="subtle" onClick={() => navigate('/my-blogs')}>
+                                    My Blogs
+                                </Button>
+                                <Button variant="subtle" onClick={() => navigate('/settings')}>
+                                    Settings
+                                </Button>
+                            </>
+                        )}
+                    </Group>
+                    <Group>
+                        {!isAuthenticated ? (
+                            <>
+                                <Button variant="subtle" onClick={() => navigate('/login')}>
+                                    Login
+                                </Button>
+                                <Button variant="subtle" onClick={() => navigate('/register')}>
+                                    Register
+                                </Button>
+                            </>
+                        ) : (
+                            <Button variant="subtle" color="red" onClick={handleLogout}>
+                                Logout
+                            </Button>
+                        )}
+                    </Group>
                 </Group>
             </MantineAppShell.Header>
 
-            <MantineAppShell.Navbar p="xs">
-                <MantineAppShell.Section grow>
-                    <UnstyledButton
-                        component={Link}
-                        to="/dashboard"
-                        w="100%"
-                        p="xs"
-                        style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
-                    >
-                        <IconDashboard size={20} />
-                        <Text>Dashboard</Text>
-                    </UnstyledButton>
-                    <UnstyledButton
-                        component={Link}
-                        to="/create-blog"
-                        w="100%"
-                        p="xs"
-                        style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
-                    >
-                        <IconPencilPlus size={20} />
-                        <Text>Create Blog</Text>
-                    </UnstyledButton>
-                    <UnstyledButton
-                        component={Link}
-                        to="/my-blogs"
-                        w="100%"
-                        p="xs"
-                        style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
-                    >
-                        <IconArticle size={20} />
-                        <Text>My Blogs</Text>
-                    </UnstyledButton>
-                    <UnstyledButton
-                        component={Link}
-                        to="/settings"
-                        w="100%"
-                        p="xs"
-                        style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
-                    >
-                        <IconSettings size={20} />
-                        <Text>Settings</Text>
-                    </UnstyledButton>
-                </MantineAppShell.Section>
-
-                <MantineAppShell.Section>
-                    <UnstyledButton
-                        onClick={handleLogout}
-                        w="100%"
-                        p="xs"
-                        style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--mantine-color-red-6)' }}
-                    >
-                        <IconLogout size={20} />
-                        <Text>Logout</Text>
-                    </UnstyledButton>
-                </MantineAppShell.Section>
-            </MantineAppShell.Navbar>
-
             <MantineAppShell.Main>
-                {children}
+                <Outlet />
             </MantineAppShell.Main>
         </MantineAppShell>
     );

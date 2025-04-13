@@ -10,11 +10,11 @@ class BlogRepository:
     async def create(self, post: BlogPost) -> BlogPost:
         doc_ref = self.collection.document()
         post.id = doc_ref.id
-        await doc_ref.set(post.dict())
+        doc_ref.set(post.dict())  # Firestore set is synchronous
         return post
 
     async def get(self, post_id: str) -> Optional[BlogPost]:
-        doc = await self.collection.document(post_id).get()
+        doc = self.collection.document(post_id).get()  # Firestore get is synchronous
         if doc.exists:
             return BlogPost(**doc.to_dict())
         return None
@@ -23,21 +23,21 @@ class BlogRepository:
         query = self.collection.limit(limit)
         if status:
             query = query.where('status', '==', status)
-        docs = await query.get()
+        docs = query.get()  # Firestore get is synchronous
         return [BlogPost(**doc.to_dict()) for doc in docs]
 
     async def update(self, post_id: str, post: BlogPost) -> Optional[BlogPost]:
         doc_ref = self.collection.document(post_id)
-        doc = await doc_ref.get()
+        doc = doc_ref.get()  # Firestore get is synchronous
         if not doc.exists:
             return None
-        await doc_ref.update(post.dict(exclude={'id'}))
+        doc_ref.update(post.dict(exclude={'id'}))  # Firestore update is synchronous
         return post
 
     async def delete(self, post_id: str) -> bool:
         doc_ref = self.collection.document(post_id)
-        doc = await doc_ref.get()
+        doc = doc_ref.get()  # Firestore get is synchronous
         if not doc.exists:
             return False
-        await doc_ref.delete()
+        doc_ref.delete()  # Firestore delete is synchronous
         return True 

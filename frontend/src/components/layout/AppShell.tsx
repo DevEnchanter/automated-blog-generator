@@ -1,4 +1,4 @@
-import { AppShell as MantineAppShell, Button, Group, Title } from '@mantine/core';
+import { AppShell as MantineAppShell, Button, Group, Title, Loader, Center } from '@mantine/core';
 import { useNavigate, Outlet, Navigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../../store/auth';
 
@@ -7,12 +7,21 @@ const PUBLIC_ROUTES = ['/login', '/register', '/forgot-password', '/reset-passwo
 export function AppShell() {
     const navigate = useNavigate();
     const location = useLocation();
-    const { isAuthenticated, logout } = useAuthStore();
+    const { isAuthenticated, isLoading, logout } = useAuthStore();
 
     const handleLogout = () => {
         logout();
         navigate('/login');
     };
+
+    // Show loading state while auth is being checked
+    if (isLoading) {
+        return (
+            <Center h="100vh">
+                <Loader size="xl" />
+            </Center>
+        );
+    }
 
     // Redirect to login if not authenticated and trying to access a protected route
     if (!isAuthenticated && !PUBLIC_ROUTES.includes(location.pathname)) {

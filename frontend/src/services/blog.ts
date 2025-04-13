@@ -38,8 +38,20 @@ export interface BlogListResponse {
 }
 
 export const generateBlog = async (params: BlogGenerationParams): Promise<BlogGenerationResponse> => {
-    const response = await api.post<BlogGenerationResponse>('/api/blogs/generate', params);
-    return response.data;
+    try {
+        const response = await api.post<BlogGenerationResponse>('/api/blogs/generate', params, {
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+            },
+        });
+        return response.data;
+    } catch (error: any) {
+        if (error.response) {
+            throw new Error(error.response.data.detail || 'Failed to generate blog post');
+        }
+        throw new Error('Network error occurred while generating blog post');
+    }
 };
 
 export const blogService = {

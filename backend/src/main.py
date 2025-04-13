@@ -27,13 +27,14 @@ except Exception as e:
     raise
 
 # Configure CORS
-CORS_ORIGINS = json.loads(os.getenv("CORS_ORIGINS", '["http://localhost:5173"]'))
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=CORS_ORIGINS,
+    allow_origins=["*"],  # Allow all origins
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["*"],  # Allow all methods
+    allow_headers=["*"],  # Allow all headers
+    expose_headers=["*"],  # Expose all headers
+    max_age=3600,  # Cache preflight requests for 1 hour
 )
 
 # Error handlers

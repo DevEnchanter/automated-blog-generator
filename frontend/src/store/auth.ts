@@ -6,6 +6,7 @@ import type { RegisterCredentials } from '../types/auth';
 interface AuthState {
     user: User | null;
     isAuthenticated: boolean;
+    isLoading: boolean;
     login: (email: string, password: string) => Promise<void>;
     register: (credentials: RegisterCredentials) => Promise<void>;
     logout: () => Promise<void>;
@@ -14,18 +15,18 @@ interface AuthState {
 export const useAuthStore = create<AuthState>((set) => {
     const auth = getAuth(app);
     
-    // Initialize auth state
-    const user = auth.currentUser;
-    set({ user, isAuthenticated: !!user });
+    // Initialize auth state with loading
+    set({ user: null, isAuthenticated: false, isLoading: true });
 
     // Listen for auth state changes
     auth.onAuthStateChanged((user) => {
-        set({ user, isAuthenticated: !!user });
+        set({ user, isAuthenticated: !!user, isLoading: false });
     });
 
     return {
-        user,
-        isAuthenticated: !!user,
+        user: null,
+        isAuthenticated: false,
+        isLoading: true,
         
         login: async (email: string, password: string) => {
             try {

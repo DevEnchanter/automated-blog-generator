@@ -1,24 +1,13 @@
-# Python 3.11 required
-# To specify Python version in your environment:
-# pyenv install 3.11.7
-# pyenv local 3.11.7
-
 fastapi==0.109.0
-uvicorn==0.27.0
 pydantic==2.5.3
 pydantic-settings==2.1.0
 python-dotenv==1.0.0
-pytest==7.4.4
 httpx==0.26.0
 python-jose==3.3.0
 passlib==1.7.4
 python-multipart==0.0.6
 bcrypt==4.1.2
-openai==1.10.0
 python-slugify==8.0.1
-black==24.1.1
-isort==5.13.2
-flake8==7.0.0
 firebase-admin==6.4.0
 google-cloud-firestore==2.14.0
 google-cloud-aiplatform==1.42.1 

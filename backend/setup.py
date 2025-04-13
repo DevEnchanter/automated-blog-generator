@@ -1,0 +1,14 @@
+from setuptools import setup, find_packages
+
+setup(
+    name="automated-blog-generator",
+    version="0.1.0",
+    packages=find_packages(),
+    install_requires=[
+        "fastapi",
+        "uvicorn",
+        "firebase-admin",
+        "google-generativeai",
+        "python-dotenv",
+    ],
+) 

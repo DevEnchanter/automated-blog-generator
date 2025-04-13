@@ -1,7 +1,6 @@
-export interface User {
-    email: string;
-    disabled?: boolean;
-}
+import { User as FirebaseUser } from 'firebase/auth';
+
+export type User = FirebaseUser;
 
 export interface LoginCredentials {
     email: string;
@@ -30,11 +29,10 @@ export interface AuthResponse {
 
 export interface AuthState {
     user: User | null;
-    token: string | null;
     isAuthenticated: boolean;
     login: (credentials: LoginCredentials) => Promise<void>;
     register: (credentials: RegisterCredentials) => Promise<void>;
-    logout: () => void;
+    logout: () => Promise<void>;
     requestPasswordReset: (email: string) => Promise<{ message: string; token?: string }>;
     resetPassword: (token: string, newPassword: string) => Promise<{ message: string }>;
 } 

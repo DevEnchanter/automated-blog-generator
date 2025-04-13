@@ -1,4 +1,5 @@
 import axios, { AxiosError } from 'axios';
+import { getAuth } from 'firebase/auth';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
@@ -15,7 +16,6 @@ api.interceptors.response.use(
   (error: AxiosError) => {
     if (error.response?.status === 401) {
       // Handle unauthorized access
-      localStorage.removeItem('token');
       window.location.href = '/login';
     }
     return Promise.reject(error);
@@ -23,13 +23,15 @@ api.interceptors.response.use(
 );
 
 // Configure auth header for protected requests
-export const configureAuthHeader = (token: string | null) => {
-  if (token) {
+export const configureAuthHeader = async () => {
+  const auth = getAuth();
+  const user = auth.currentUser;
+  
+  if (user) {
+    const token = await user.getIdToken();
     api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-    localStorage.setItem('token', token);
   } else {
     delete api.defaults.headers.common['Authorization'];
-    localStorage.removeItem('token');
   }
 };
 
@@ -63,24 +65,29 @@ export const authApi = {
     formData.append('username', email);
     formData.append('password', password);
 
-    const response = await api.post('/api/auth/login', formData, {
+    const response = await api.post('/auth/token', formData, {
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
       },
     });
     
     if (response.data.access_token) {
-      configureAuthHeader(response.data.access_token);
+      configureAuthHeader();
     }
     
     return response.data;
   },
 
   async register(email: string, password: string) {
-    const response = await api.post('/api/auth/register', {
+    const response = await api.post('/auth/register', {
       email,
       password,
     });
+    return response.data;
+  },
+
+  async getCurrentUser() {
+    const response = await api.get('/auth/me');
     return response.data;
   },
 
@@ -102,7 +109,7 @@ export const authApi = {
   async refreshToken() {
     const response = await api.post('/api/auth/refresh-token');
     if (response.data.access_token) {
-      configureAuthHeader(response.data.access_token);
+      configureAuthHeader();
     }
     return response.data;
   }

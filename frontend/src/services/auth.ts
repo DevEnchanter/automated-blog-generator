@@ -1,46 +1,44 @@
-import axios from 'axios';
-import { LoginCredentials, RegisterCredentials, AuthResponse } from '../types/auth';
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, User } from 'firebase/auth';
+import app from '../lib/firebase';
+import type { LoginCredentials, RegisterCredentials } from '../types/auth';
 
-const API_URL = 'http://localhost:8000';
+const auth = getAuth(app);
 
 export const authService = {
-    async login(credentials: LoginCredentials): Promise<AuthResponse> {
-        // FastAPI OAuth2 form expects 'username' field, but we use it for email
-        const formData = new URLSearchParams();
-        formData.append('username', credentials.email);  // Using email as username
-        formData.append('password', credentials.password);
-
-        const response = await axios.post(`${API_URL}/token`, formData, {
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded'
-            }
-        });
-        return response.data;
+    async login(credentials: LoginCredentials): Promise<User> {
+        try {
+            const userCredential = await signInWithEmailAndPassword(auth, credentials.email, credentials.password);
+            return userCredential.user;
+        } catch (error) {
+            console.error('Login failed:', error);
+            throw error;
+        }
     },
 
-    async register(credentials: RegisterCredentials): Promise<void> {
-        await axios.post(`${API_URL}/register`, credentials);
+    async register(credentials: RegisterCredentials): Promise<User> {
+        try {
+            const userCredential = await createUserWithEmailAndPassword(auth, credentials.email, credentials.password);
+            return userCredential.user;
+        } catch (error) {
+            console.error('Registration failed:', error);
+            throw error;
+        }
     },
 
-    async getCurrentUser(token: string) {
-        const response = await axios.get(`${API_URL}/users/me`, {
-            headers: {
-                Authorization: `Bearer ${token}`
-            }
-        });
-        return response.data;
+    async logout(): Promise<void> {
+        try {
+            await signOut(auth);
+        } catch (error) {
+            console.error('Logout failed:', error);
+            throw error;
+        }
     },
 
-    async requestPasswordReset(email: string): Promise<{ message: string; token?: string }> {
-        const response = await axios.post(`${API_URL}/forgot-password`, { email });
-        return response.data;
+    getCurrentUser(): User | null {
+        return auth.currentUser;
     },
 
-    async resetPassword(token: string, new_password: string): Promise<{ message: string }> {
-        const response = await axios.post(`${API_URL}/reset-password`, {
-            token,
-            new_password
-        });
-        return response.data;
+    onAuthStateChanged(callback: (user: User | null) => void) {
+        return auth.onAuthStateChanged(callback);
     }
 }; 

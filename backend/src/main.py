@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 from .core.firebase import initialize_firebase
-from .api.routes import blog
+from .api.routes import blog, auth
 import logging
 import os
 import json
@@ -57,6 +57,7 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # Include routers
 app.include_router(blog.router)
+app.include_router(auth.router)
 
 # Health check endpoint
 @app.get("/health")

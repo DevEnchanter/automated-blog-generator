@@ -1,71 +1,55 @@
 import { create } from 'zustand';
-import { authApi, configureAuthHeader } from '../services/api';
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, User } from 'firebase/auth';
+import app from '../lib/firebase';
+import type { RegisterCredentials } from '../types/auth';
 
 interface AuthState {
-    token: string | null;
+    user: User | null;
     isAuthenticated: boolean;
     login: (email: string, password: string) => Promise<void>;
-    register: (email: string, password: string) => Promise<void>;
-    logout: () => void;
-    requestPasswordReset: (email: string) => Promise<any>;
-    resetPassword: (token: string, newPassword: string) => Promise<any>;
+    register: (credentials: RegisterCredentials) => Promise<void>;
+    logout: () => Promise<void>;
 }
 
 export const useAuthStore = create<AuthState>((set) => {
-    // Initialize auth header with stored token
-    const storedToken = localStorage.getItem('token');
-    if (storedToken) {
-        configureAuthHeader(storedToken);
-    }
+    const auth = getAuth(app);
+    
+    // Initialize auth state
+    const user = auth.currentUser;
+    set({ user, isAuthenticated: !!user });
+
+    // Listen for auth state changes
+    auth.onAuthStateChanged((user) => {
+        set({ user, isAuthenticated: !!user });
+    });
 
     return {
-        token: storedToken,
-        isAuthenticated: !!storedToken,
+        user,
+        isAuthenticated: !!user,
         
         login: async (email: string, password: string) => {
             try {
-                const response = await authApi.login(email, password);
-                const token = response.access_token;
-                localStorage.setItem('token', token);
-                set({ token, isAuthenticated: true });
+                await signInWithEmailAndPassword(auth, email, password);
             } catch (error) {
                 console.error('Login failed:', error);
                 throw error;
             }
         },
         
-        register: async (email: string, password: string) => {
+        register: async (credentials: RegisterCredentials) => {
             try {
-                const response = await authApi.register(email, password);
-                const token = response.access_token;
-                localStorage.setItem('token', token);
-                set({ token, isAuthenticated: true });
+                await createUserWithEmailAndPassword(auth, credentials.email, credentials.password);
             } catch (error) {
                 console.error('Registration failed:', error);
                 throw error;
             }
         },
         
-        logout: () => {
-            localStorage.removeItem('token');
-            configureAuthHeader(null);
-            set({ token: null, isAuthenticated: false });
-        },
-
-        requestPasswordReset: async (email: string) => {
+        logout: async () => {
             try {
-                return await authApi.requestPasswordReset(email);
+                await signOut(auth);
             } catch (error) {
-                console.error('Password reset request failed:', error);
-                throw error;
-            }
-        },
-
-        resetPassword: async (token: string, newPassword: string) => {
-            try {
-                return await authApi.resetPassword(token, newPassword);
-            } catch (error) {
-                console.error('Password reset failed:', error);
+                console.error('Logout failed:', error);
                 throw error;
             }
         }

@@ -34,6 +34,8 @@ env/
 # Environment variables
 .env
 .env.local
+.env.*
+!.env.example
 
 # Testing
 .coverage
@@ -50,6 +52,28 @@ static/media/*
 !static/media/.gitkeep
 static/assets/*
 !static/assets/.gitkeep
+
+# Sensitive files
+*.pem
+*.key
+*.cert
+*.crt
+service-account.json
+firebase-credentials.json
+credentials.json
+token.json
+*.db
+*.sqlite
+*.sqlite3
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
 
 # Firebase
 firebase-debug.log

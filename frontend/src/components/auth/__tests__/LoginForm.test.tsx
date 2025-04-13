@@ -1,6 +1,5 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '../../../../tests/setup';
 import { LoginForm } from '../LoginForm';
-import { BrowserRouter } from 'react-router-dom';
 import { useAuthStore } from '../../../store/auth';
 
 // Mock the auth store
@@ -19,11 +18,7 @@ describe('LoginForm', () => {
     });
 
     it('renders login form', () => {
-        render(
-            <BrowserRouter>
-                <LoginForm />
-            </BrowserRouter>
-        );
+        render(<LoginForm />);
 
         expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
         expect(screen.getByLabelText(/password/i)).toBeInTheDocument();
@@ -31,11 +26,7 @@ describe('LoginForm', () => {
     });
 
     it('shows validation errors for empty fields', async () => {
-        render(
-            <BrowserRouter>
-                <LoginForm />
-            </BrowserRouter>
-        );
+        render(<LoginForm />);
 
         const submitButton = screen.getByRole('button', { name: /sign in/i });
         fireEvent.click(submitButton);
@@ -47,11 +38,7 @@ describe('LoginForm', () => {
     });
 
     it('shows validation error for invalid email', async () => {
-        render(
-            <BrowserRouter>
-                <LoginForm />
-            </BrowserRouter>
-        );
+        render(<LoginForm />);
 
         const emailInput = screen.getByLabelText(/email/i);
         fireEvent.change(emailInput, { target: { value: 'invalid-email' } });
@@ -73,11 +60,7 @@ describe('LoginForm', () => {
             clearAuth: jest.fn()
         }));
 
-        render(
-            <BrowserRouter>
-                <LoginForm />
-            </BrowserRouter>
-        );
+        render(<LoginForm />);
 
         const emailInput = screen.getByLabelText(/email/i);
         const passwordInput = screen.getByLabelText(/password/i);

@@ -1,0 +1,5 @@
+{
+  "devDependencies": {
+    "postcss-preset-mantine": "^1.17.0"
+  }
+}

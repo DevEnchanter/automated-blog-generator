@@ -10,6 +10,9 @@ export interface BlogGenerationParams {
 
 export interface BlogGenerationResponse {
     content: string;
+    title: string;
+    meta_description: string;
+    estimated_read_time: number;
 }
 
 export interface BlogPost {
@@ -21,6 +24,17 @@ export interface BlogPost {
     views: number;
     created_at: string;
     updated_at: string;
+    meta_description: string;
+    tags: string[];
+    estimated_read_time: number;
+    slug: string;
+}
+
+export interface BlogListResponse {
+    data: BlogPost[];
+    total: number;
+    page: number;
+    limit: number;
 }
 
 export const generateBlog = async (params: BlogGenerationParams): Promise<BlogGenerationResponse> => {
@@ -30,26 +44,50 @@ export const generateBlog = async (params: BlogGenerationParams): Promise<BlogGe
 
 export const blogService = {
     async createBlog(blog: Partial<BlogPost>): Promise<BlogPost> {
-        const response = await api.post<BlogPost>('/blog', blog);
+        const response = await api.post<BlogPost>('/api/blogs', blog);
         return response.data;
     },
 
     async getBlog(id: string): Promise<BlogPost> {
-        const response = await api.get<BlogPost>(`/blog/${id}`);
+        const response = await api.get<BlogPost>(`/api/blogs/${id}`);
         return response.data;
     },
 
-    async getMyBlogs(): Promise<BlogPost[]> {
-        const response = await api.get<BlogPost[]>('/blogs');
+    async getBlogBySlug(slug: string): Promise<BlogPost> {
+        const response = await api.get<BlogPost>(`/api/blogs/slug/${slug}`);
+        return response.data;
+    },
+
+    async getMyBlogs(page: number = 1, limit: number = 10): Promise<BlogListResponse> {
+        const response = await api.get<BlogListResponse>('/api/blogs/me', {
+            params: { page, limit }
+        });
+        return response.data;
+    },
+
+    async getAllBlogs(page: number = 1, limit: number = 10): Promise<BlogListResponse> {
+        const response = await api.get<BlogListResponse>('/api/blogs', {
+            params: { page, limit }
+        });
         return response.data;
     },
 
     async updateBlog(id: string, updates: Partial<BlogPost>): Promise<BlogPost> {
-        const response = await api.put<BlogPost>(`/blog/${id}`, updates);
+        const response = await api.put<BlogPost>(`/api/blogs/${id}`, updates);
         return response.data;
     },
 
     async deleteBlog(id: string): Promise<void> {
-        await api.delete(`/blog/${id}`);
+        await api.delete(`/api/blogs/${id}`);
+    },
+
+    async publishBlog(id: string): Promise<BlogPost> {
+        const response = await api.post<BlogPost>(`/api/blogs/${id}/publish`);
+        return response.data;
+    },
+
+    async unpublishBlog(id: string): Promise<BlogPost> {
+        const response = await api.post<BlogPost>(`/api/blogs/${id}/unpublish`);
+        return response.data;
     }
 }; 

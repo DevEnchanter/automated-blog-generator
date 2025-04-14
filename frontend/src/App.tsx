@@ -1,5 +1,4 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { MantineProvider } from '@mantine/core';
 import { Notifications } from '@mantine/notifications';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AppShell } from './components/layout/AppShell';
@@ -14,6 +13,7 @@ import { Settings } from './pages/Settings';
 import { useAuthStore } from './store/auth';
 import { BlogView } from './pages/BlogView';
 import { EditBlog } from './pages/EditBlog';
+import { ThemeProvider } from './components/ThemeProvider';
 
 const queryClient = new QueryClient();
 
@@ -25,7 +25,7 @@ function Root() {
 export default function App() {
     return (
         <QueryClientProvider client={queryClient}>
-            <MantineProvider>
+            <ThemeProvider>
                 <Notifications />
                 <BrowserRouter>
                     <Routes>
@@ -44,7 +44,7 @@ export default function App() {
                         </Route>
                     </Routes>
                 </BrowserRouter>
-            </MantineProvider>
+            </ThemeProvider>
         </QueryClientProvider>
     );
 }

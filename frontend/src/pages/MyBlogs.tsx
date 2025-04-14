@@ -29,10 +29,12 @@ export function MyBlogs() {
     const queryClient = useQueryClient();
 
     // Fetch blogs
-    const { data: blogs = [], isLoading } = useQuery({
+    const { data: blogResponse, isLoading } = useQuery({
         queryKey: ['blogs'],
-        queryFn: blogService.getMyBlogs
+        queryFn: () => blogService.getMyBlogs()
     });
+
+    const blogs = blogResponse?.data || [];
 
     // Delete blog mutation
     const deleteMutation = useMutation({

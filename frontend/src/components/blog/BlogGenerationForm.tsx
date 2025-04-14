@@ -1,12 +1,14 @@
-import { useState } from 'react';
-import { Box, TextInput, Select, Button, Stack, Paper, Combobox, InputBase, useCombobox } from '@mantine/core';
+import { useState, useEffect } from 'react';
+import { Box, TextInput, Select, Button, Stack, Paper, Combobox, InputBase, useCombobox, Alert } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
 import { useMutation } from '@tanstack/react-query';
 import { generateBlog, BlogGenerationParams, BlogGenerationResponse } from '../../services/blog';
+import { useBlogStore } from '../../store/blogStore';
+import { IconAlertCircle } from '@tabler/icons-react';
 
 interface BlogGenerationFormProps {
-  onSuccess: (content: string) => void;
+  onSuccess: (content: string, title: string) => void;
 }
 
 export function BlogGenerationForm({ onSuccess }: BlogGenerationFormProps) {
@@ -14,6 +16,14 @@ export function BlogGenerationForm({ onSuccess }: BlogGenerationFormProps) {
   const combobox = useCombobox({
     onDropdownClose: () => combobox.resetSelectedOption(),
   });
+
+  const {
+    isGenerating,
+    generationError,
+    setGenerationStatus,
+    cacheGeneration,
+    getCachedGeneration,
+  } = useBlogStore();
 
   const form = useForm({
     initialValues: {
@@ -27,30 +37,58 @@ export function BlogGenerationForm({ onSuccess }: BlogGenerationFormProps) {
     },
   });
 
+  // Check for cached generation when form values change
+  useEffect(() => {
+    const params = {
+      ...form.values,
+      keywords,
+    };
+    const cached = getCachedGeneration(params);
+    if (cached) {
+      onSuccess(cached.content, cached.title);
+    }
+  }, [form.values, keywords]);
+
   const generateMutation = useMutation<BlogGenerationResponse, Error, BlogGenerationParams>({
     mutationFn: generateBlog,
+    onMutate: () => {
+      setGenerationStatus(true);
+    },
     onSuccess: (data) => {
+      setGenerationStatus(false);
       notifications.show({
         title: 'Success',
         message: 'Blog post generated successfully',
         color: 'green',
       });
-      onSuccess(data.content);
+      cacheGeneration({ ...form.values, keywords }, data);
+      onSuccess(data.content, data.title);
     },
     onError: (error) => {
+      setGenerationStatus(false, error.message);
       notifications.show({
         title: 'Error',
-        message: 'Failed to generate blog post',
+        message: error.message || 'Failed to generate blog post',
         color: 'red',
       });
     },
   });
 
   const handleSubmit = form.onSubmit((values) => {
-    generateMutation.mutate({
+    const params = {
       ...values,
       keywords,
-    });
+    };
+    
+    // Check cache first
+    const cached = getCachedGeneration(params);
+    if (cached) {
+      onSuccess(cached.content, cached.title);
+      return;
+    }
+
+    // If not in cache, generate new content
+    generateMutation.mutate(params);
   });
 
   const handleKeywordAdd = (keyword: string) => {
@@ -67,6 +105,17 @@ export function BlogGenerationForm({ onSuccess }: BlogGenerationFormProps) {
     <Paper p="md" withBorder>
       <form onSubmit={handleSubmit}>
         <Stack>
+          {generationError && (
+            <Alert 
+              icon={<IconAlertCircle size={16} />} 
+              title="Generation Error" 
+              color="red"
+              variant="filled"
+            >
+              {generationError}
+            </Alert>
+          )}
+
           <TextInput
             required
             label="Topic"
@@ -149,8 +198,8 @@ export function BlogGenerationForm({ onSuccess }: BlogGenerationFormProps) {
 
           <Button 
             type="submit" 
-            loading={generateMutation.isPending}
-            disabled={generateMutation.isPending}
+            loading={isGenerating}
+            disabled={isGenerating}
           >
             Generate Blog Post
           </Button>

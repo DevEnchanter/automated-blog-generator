@@ -15,6 +15,8 @@ class BlogPost(FirestoreDocument):
     meta_description: Optional[str] = None
     published_at: Optional[datetime] = None
     views: int = 0
+    created_at: datetime = datetime.utcnow()
+    updated_at: datetime = datetime.utcnow()
 
     class Config:
         """Pydantic config."""

@@ -35,8 +35,12 @@ async def options_generate():
 async def create_post(post: BlogPost):
     """Create a new blog post."""
     try:
-        return await blog_repo.create(post)
+        logger.info(f"Creating blog post: {post.dict()}")
+        created_post = await blog_repo.create(post)
+        logger.info(f"Blog post created successfully: {created_post.id}")
+        return created_post
     except Exception as e:
+        logger.error(f"Failed to create blog post: {str(e)}")
         raise HTTPException(
             status_code=500,
             detail=str(e)
@@ -54,11 +58,17 @@ async def get_post(post_id: str):
     return post
 
 @router.get("/", response_model=List[BlogPost])
-async def list_posts(limit: int = 10, status: Optional[str] = None):
+async def list_posts(
+    limit: int = 10, 
+    status: Optional[str] = None,
+    author_id: Optional[str] = None
+):
     """List blog posts with optional filtering."""
     try:
-        return await blog_repo.list(limit=limit, status=status)
+        logger.info(f"Fetching posts with filters - author_id: {author_id}, status: {status}")
+        return await blog_repo.list(limit=limit, status=status, author_id=author_id)
     except Exception as e:
+        logger.error(f"Failed to list posts: {str(e)}")
         raise HTTPException(
             status_code=500,
             detail=str(e)
@@ -118,4 +128,21 @@ async def generate_post(request: BlogGenerationRequest):
         raise HTTPException(
             status_code=500,
             detail=f"Failed to generate blog post: {str(e)}"
+        )
+
+@router.get("/me", response_model=List[BlogPost])
+async def get_my_posts(limit: int = 10, status: Optional[str] = None):
+    """Get the current user's blog posts."""
+    try:
+        # TODO: Get current user ID from auth context
+        current_user_id = "current-user"  # Temporary until auth is implemented
+        logger.info(f"Fetching posts for user: {current_user_id}")
+        posts = await blog_repo.list_by_author(current_user_id, limit=limit, status=status)
+        logger.info(f"Found {len(posts)} posts for user {current_user_id}")
+        return posts
+    except Exception as e:
+        logger.error(f"Failed to fetch user's blog posts: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail=str(e)
         ) 

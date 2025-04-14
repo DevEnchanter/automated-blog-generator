@@ -94,7 +94,7 @@ A full-stack web application that automatically generates blog posts using AI. B
 
 4. Start the development server:
    ```bash
-   uvicorn src.main:app --reload
+   python run.py
    ```
 
 ### Frontend Setup

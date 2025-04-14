@@ -1,4 +1,5 @@
 import { api } from './api';
+import { v4 as uuidv4 } from 'uuid';
 
 export interface BlogGenerationParams {
     topic: string;
@@ -19,7 +20,7 @@ export interface BlogPost {
     id: string;
     title: string;
     content: string;
-    author: string;
+    author_id: string;
     status: 'draft' | 'published';
     views: number;
     created_at: string;
@@ -56,7 +57,20 @@ export const generateBlog = async (params: BlogGenerationParams): Promise<BlogGe
 
 export const blogService = {
     async createBlog(blog: Partial<BlogPost>): Promise<BlogPost> {
-        const response = await api.post<BlogPost>('/api/blogs', blog);
+        // Format the blog post data
+        const formattedBlog = {
+            title: blog.title || '',
+            content: blog.content || '',
+            author_id: 'current-user', // TODO: Get from auth context
+            status: 'draft',
+            views: 0,
+            meta_description: blog.meta_description || '',
+            tags: blog.tags || [],
+            estimated_read_time: blog.estimated_read_time || 0,
+            slug: blog.title?.toLowerCase().replace(/[^a-z0-9]+/g, '-') || '',
+        };
+
+        const response = await api.post<BlogPost>('/api/blogs', formattedBlog);
         return response.data;
     },
 
@@ -71,10 +85,19 @@ export const blogService = {
     },
 
     async getMyBlogs(page: number = 1, limit: number = 10): Promise<BlogListResponse> {
-        const response = await api.get<BlogListResponse>('/api/blogs/me', {
-            params: { page, limit }
+        const response = await api.get<BlogPost[]>('/api/blogs', {
+            params: { 
+                page, 
+                limit,
+                author_id: 'current-user' // Add author_id filter
+            }
         });
-        return response.data;
+        return {
+            data: response.data,
+            total: response.data.length,
+            page,
+            limit
+        };
     },
 
     async getAllBlogs(page: number = 1, limit: number = 10): Promise<BlogListResponse> {

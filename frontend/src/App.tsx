@@ -12,6 +12,8 @@ import { MyBlogs } from './pages/MyBlogs';
 import { Dashboard } from './pages/Dashboard';
 import { Settings } from './pages/Settings';
 import { useAuthStore } from './store/auth';
+import { BlogView } from './pages/BlogView';
+import { EditBlog } from './pages/EditBlog';
 
 const queryClient = new QueryClient();
 
@@ -37,6 +39,8 @@ export default function App() {
                             <Route path="/create-blog" element={<CreateBlog />} />
                             <Route path="/my-blogs" element={<MyBlogs />} />
                             <Route path="/settings" element={<Settings />} />
+                            <Route path="/blog/:id" element={<BlogView />} />
+                            <Route path="/edit-blog/:id" element={<EditBlog />} />
                         </Route>
                     </Routes>
                 </BrowserRouter>

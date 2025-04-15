@@ -1,7 +1,6 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-from fastapi.staticfiles import StaticFiles
 from .core.firebase import initialize_firebase
 from .api.routes import blog, auth
 import logging
@@ -52,9 +51,6 @@ async def global_exception_handler(request, exc):
         status_code=500,
         content={"message": "Internal server error", "detail": str(exc)},
     )
-
-# Mount static files
-app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # Include routers
 app.include_router(blog.router)

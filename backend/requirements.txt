@@ -28,7 +28,20 @@ python-jose==3.3.0
 passlib==1.7.4
 python-multipart==0.0.6
 bcrypt==4.1.2
-openai==1.10.0
 python-slugify==8.0.1
 flake8==7.0.0
-google-cloud-aiplatform==1.42.1 
+google-cloud-aiplatform==1.42.1
+
+# New: Rate Limiting
+# slowapi # Removing slowapi
+
+# Security
+google-api-python-client
+google-auth-httplib2
+google-auth-oauthlib
+
+# Development & Testing
+requests
+
+# Utilities
+# Add any other utility libraries here 

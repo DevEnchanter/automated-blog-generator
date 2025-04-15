@@ -77,4 +77,11 @@ Thumbs.db
 
 # Firebase
 firebase-debug.log
-firebase-debug.*.log 
+firebase-debug.*.log
+
+# Cache
+.cache/
+
+# Distribution
+dist/
+build/ 
